@@ -107,52 +107,56 @@ class posts_controller extends base_controller {
     	echo $this->template;
 	}
 	
-    /*-------------------------------------------------------------------------------------------------
-	ADD pass add view to index view
-	-------------------------------------------------------------------------------------------------*/
-
+        /*-------------------------------------------------------------------------------------------------
+        ADD pass add view to index view
+        -------------------------------------------------------------------------------------------------*/
     public function add() {
     
-       	// Setup view and passed to v_posts_index
-        $this->template->content 	= View::instance('v_posts_add');
-        #$this->template->title   	= "New Post";
-        #$this->template->body_id 	= 'add'; 
-        
+               // Setup view and passed to v_posts_index
+        //$this->template->content         = View::instance('v_posts_add');
+
+        $client_files_body = Array(
+            '/js/jquery.form.js',
+            '/js/posts_add.js'
+        );            
+
+        $this->template->client_files_body = Utils::load_client_files($client_files_body);
+
         // Another view
         #$this->template->content->moreContent = View::instance('v_posts_index'); 
 
-        // Render template
         echo $this->template;
     
-    	#echo "This is the add a post page";
     
     }
     
+    /*-------------------------------------------------------------------------------------------------
+    Process new posts
+    -------------------------------------------------------------------------------------------------*/    
     public function p_add() {
     
-    	#echo "<pre>";
-    	#print_r($_POST);
-    	#echo "</pre>";
-    	
-    	// Check for empty post
-    	
+        // Check for empty post!!!
+            
         // Associate this post with this user
         $_POST['user_id']  = $this->user->user_id;
-            	    
+                        
         // Unix timestamp of when this post was created / modified
-    	$_POST['created']  = Time::now();
-    	$_POST['modified'] = Time::now();
-		
-		// Insert
- 		/* Note we didn't have to sanitize any of the $_POST data 
- 		because we're using the insert method which does it for us*/		
- 		DB::instance(DB_NAME)->insert('posts',$_POST);
- 		
-		// Quick and dirty feedback
-        #echo "Your post has been added. <a href='/posts/add'>Add another</a>";
-        		
-		// Where do I want to redirect them
-		Router::redirect('/posts');
+        $_POST['created']  = Time::now();
+        $_POST['modified'] = Time::now();
+                
+        // Insert method already sanitized                 
+        DB::instance(DB_NAME)->insert('posts',$_POST);
+       
+        $view = new View('v_posts_p_add');
+
+        $view->created = Time::display(Time::now());
+
+        echo $view;
+
+        //echo "New post was added on ".Time::display(Time::now());        
+        // Where do I want to redirect them
+        //Router::redirect('/posts');
+
     }
     
     /*-------------------------------------------------------------------------------------------------
